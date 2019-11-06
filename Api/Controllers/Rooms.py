@@ -10,7 +10,7 @@ def get_one_room(id):
 @app.route('/room', methods=['GET'])
 def get_all_room(room=""):
    room = request.args.get('room', room)
-   #if room null
+   #if room not
 #insert more code here for returning results based on the query so that all rooms are not shown when only 1 is requested.
    return jsonify({'results' : "Wow we did it"})
 
