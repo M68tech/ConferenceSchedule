@@ -26,35 +26,71 @@
 
 #--------------------------------------------------------#
 #task3:getting data from mongodb
-from flask import Flask
-from flask import request
+#from flask import Flask
+#from pymongo import MongoClient
+#import json
 
-import pymongo
-import urllib
-import json
-
-#client = pymongo.MongoClient('mongodb://Anusha:Anusha@1994@cluster0-shard-00-00-c33k7.mongodb.net:27017,cluster0-shard-00-01-c33k7.mongodb.net:27017,cluster0-shard-00-02-c33k7.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true&w=majority')
-
-#mongo_uri = "mongodb://username:" + urllib.parse.quote("p@ssword") + "@127.0.0.1:27001/"
-
-#db = client['task']
+#client = MongoClient('mongodb+srv://Anusha:Anujesus@cluster0-c33k7.mongodb.net/task?retryWrites=true&w=majority')
+#db = client.get_database('task')
 #collection = db['speaker']
-#mongo_uri = "mongodb://username:" + urllib.quote("p@ssword") + "@127.0.0.1:27001/"
-client = pymongo.MongoClient('localhost:27017')
-db = client['task']
-collection = db['speaker']
+#app = Flask(__name__)
+
+#@app.route('/speaker')
+#def get():
+ #   documents = collection.find()
+  #  response = []
+   # for document in documents:
+    #    document['_id'] = str(document['_id'])
+     #   response.append(document)
+   # return json.dumps(response)
+
+
+#-------------------------------------#
+#----task4:retreiving data from relational database:mysql------#
+
+from flask import Flask
+from flask import g
+from flask import Response
+import json
+import MySQLdb
+
 app = Flask(__name__)
 
+@app.before_request
+def db_connect():
+  g.conn = MySQLdb.connect(host='localhost',
+                              user='root',
+                              passwd='Anujesus@1994',
+                              db='mydb')
+  g.cursor = g.conn.cursor()
+
+@app.after_request
+def db_disconnect(response):
+  g.cursor.close()
+  g.conn.close()
+  return response
+
+def query_db(query, args=(), one=False):
+  g.cursor.execute(query, args)
+  rv = [dict((g.cursor.description[idx][0], value)
+  for idx, value in enumerate(row)) for row in g.cursor.fetchall()]
+  return (rv[0] if rv else None) if one else rv
+
+@app.route("/")
+def hello():
+  return "Hello World!"
+
+@app.route("/names", methods=['GET'])
+def names():
+  result = query_db("SELECT name,age FROM login")
+  data = json.dumps(result)
+  resp = Response(data, status=200, mimetype='application/json')
+  return resp
 
 
-@app.route('/')
-def get():
-    documents = collection.find()
-    response = []
-    for document in documents:
-        document['_id'] = str(document['_id'])
-        response.append(document)
-    return json.dumps(response)
+
+
+
 
 
 if __name__ == '__main__':
