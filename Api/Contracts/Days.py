@@ -1,8 +1,8 @@
 class Day:
-    def __init__(self, id: str, calendarDay:str, displayText:str):
-                 self.id = id
+    def __init__(self, calendarDay, displayText):
                  self.calendarDay = calendarDay
                  self.displayText = displayText
+
 
 
 
